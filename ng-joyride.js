@@ -4,28 +4,30 @@
 
 (function (angular) {
 
-
     //TYPE = ELEMENT
-
-
     //---------------------------------------------------------//
-
     //TYPE = TITLE
 
-
-    var defaultTitleTemplate = "ng-joyride-title-tplv1.html";
+    var defaultTitleTemplate = 'ng-joyride-title-tplv1.html';
     var drctv = angular.module('ngJoyRide', []);
-    drctv.run(['$templateCache', function ($templateCache) {
-        $templateCache.put('ng-joyride-tplv1.html',
-            "<div class=\"popover ng-joyride sharp-borders\"> <div class=\"arrow\"></div>   <h3 class=\"popover-title sharp-borders\"></h3> <div class=\"popover-content container-fluid\"></div></div>"
-        );
-        $templateCache.put('ng-joyride-title-tplv1.html',
-            "<div id=\"ng-joyride-title-tplv1\"><div class=\"ng-joyride sharp-borders intro-banner\" style=\"\"><div class=\"popover-inner\"><h3 class=\"popover-title sharp-borders\">{{heading}}</h3><div class=\"popover-content container-fluid\"><div ng-bind-html=\"content\"></div><hr><div class=\"row\"><div class=\"col-md-4 skip-class\"><a class=\"skipBtn pull-left\" type=\"button\"><i class=\"glyphicon glyphicon-ban-circle\"></i>&nbsp; Skip</a></div><div class=\"col-md-8\"><div class=\"pull-right\"><button class=\"prevBtn btn\" type=\"button\"><i class=\"glyphicon glyphicon-chevron-left\"></i>&nbsp;Previous</button> <button id=\"nextTitleBtn\" class=\"nextBtn btn btn-primary\" type=\"button\">Next&nbsp;<i class=\"glyphicon glyphicon-chevron-right\"></i></button></div></div></div></div></div></div></div>"
-        );
-    }]);
+
+    var translateName = function(translate){
+        var name = { next: 'Next', previous: 'Previous', finish: 'Finish', skip: 'skip' };
+        if(translate){
+            name.next = translate.next ? translate.next : name.next;
+            name.previous = translate.previous ? translate.previous : name.previous;
+            name.finish = translate.finish ? translate.finish : name.finish;
+            name.skip = translate.skip ? translate.skip : name.skip;
+        }
+        return name;
+    };
+
     drctv.factory('joyrideElement', ['$timeout', '$compile', '$sce', function ($timeout, $compile, $sce) {
         function Element(config, currentStep, template, loadTemplateFn, hasReachedEndFn, goToNextFn,
-                         goToPrevFn, skipDemoFn,isEnd, curtainClass , addClassToCurtain, shouldDisablePrevious, attachTobody) {
+                         goToPrevFn, skipDemoFn,isEnd, curtainClass , addClassToCurtain, shouldDisablePrevious, attachTobody, translate) {
+
+            var name = translateName(translate);
+
             this.currentStep = currentStep;
             this.content = $sce.trustAsHtml(config.text);
             this.selector = config.selector;
@@ -42,11 +44,11 @@
                     '<hr>' +
                     '<div class=\"row\">' +
                     '<div class=\"col-md-4 center\">' +
-                    '<a class=\"skipBtn pull-left\" type=\"button\">Skip</a>' +
+                    '<a class=\"skipBtn pull-left\" type=\"button\">'+name.skip+'</a>' +
                     '</div>' +
                     '<div class=\"col-md-8\">' +
                     '<div class=\"pull-right\">' +
-                    '<button id=\"prevBtn\" class=\"prevBtn btn btn-xs\" type=\"button\">Previous</button>' +
+                    '<button id=\"prevBtn\" class=\"prevBtn btn btn-xs\" type=\"button\">'+name.previous+'</button>' +
                     ' <button id=\"nextBtn\" class=\"nextBtn btn btn-xs btn-primary\" type=\"button\">' +
                     _generateTextForNext() +
                     '</button>' +
@@ -57,29 +59,26 @@
             this.heading = config.heading;
             this.placement = config.placement;
             this.scroll = config.scroll;
-            this.staticClass = "ng-joyride-element-static";
-            this.nonStaticClass = "ng-joyride-element-non-static";
+            this.staticClass = 'ng-joyride-element-static';
+            this.nonStaticClass = 'ng-joyride-element-non-static';
             this.loadTemplateFn = loadTemplateFn;
             this.goToNextFn = goToNextFn;
             this.skipDemoFn = skipDemoFn;
             this.goToPrevFn = goToPrevFn;
             this.hasReachedEndFn = hasReachedEndFn;
-            this.type = "element";
+            this.type = 'element';
             this.curtainClass = curtainClass;
             this.addClassToCurtain = addClassToCurtain;
             this.shouldDisablePrevious = shouldDisablePrevious;
             this.attachTobody = attachTobody;
+
             function _generateTextForNext() {
-
                 if (isEnd) {
-
-                    return 'Finish';
+                    return name.finish;
                 } else {
-                    return 'Next&nbsp;<i class=\"glyphicon glyphicon-chevron-right\">';
-
+                    return name.next +'&nbsp;<i class=\"glyphicon glyphicon-chevron-right\">';
                 }
             }
-
         }
 
         Element.prototype = (function () {
@@ -91,9 +90,9 @@
                     $fkEl.popover('show');
                     $timeout(function () {
 
-                        $('.nextBtn').one("click",self.goToNextFn);
-                        $('.prevBtn').one("click",self.goToPrevFn);
-                        $('.skipBtn').one("click",self.skipDemoFn);
+                        $('.nextBtn').one('click',self.goToNextFn);
+                        $('.prevBtn').one('click',self.goToPrevFn);
+                        $('.skipBtn').one('click',self.skipDemoFn);
                         if(self.shouldDisablePrevious){
                             $('.prevBtn').prop('disabled', true);
                         }
@@ -116,7 +115,7 @@
                 event.preventDefault();
             }
             function handleClicksOnElement(){
-                $fkEl.on("click",stopEvent);
+                $fkEl.on('click',stopEvent);
             }
             function _generateHtml() {
 
@@ -171,7 +170,7 @@
             function cleanUp() {
                 _unhighlightElement.call(this);
                 if($fkEl){
-                    $fkEl.off("click",stopEvent);
+                    $fkEl.off('click',stopEvent);
                     $($fkEl).popover('destroy');
                 }
 
@@ -190,8 +189,7 @@
     }]);
     drctv.factory('joyrideTitle', ['$timeout', '$compile', '$sce', function ($timeout, $compile, $sce) {
 
-        function Title(config, currentStep, scope, loadTemplateFn, hasReachedEndFn, goToNextFn, goToPrevFn, skipDemoFn, curtainClass, addClassToCurtain, shouldDisablePrevious) {
-
+        function Title(config, currentStep, scope, loadTemplateFn, hasReachedEndFn, goToNextFn, goToPrevFn, skipDemoFn, curtainClass, addClassToCurtain, shouldDisablePrevious, translate) {
             this.currentStep = currentStep;
             this.heading = config.heading;
             this.content = $sce.trustAsHtml(config.text);
@@ -203,10 +201,11 @@
             this.skipDemoFn = skipDemoFn;
             this.goToPrevFn = goToPrevFn;
             this.scope = scope;
-            this.type = "title";
+            this.type = 'title';
             this.curtainClass = curtainClass;
             this.addClassToCurtain = addClassToCurtain;
             this.shouldDisablePrevious = shouldDisablePrevious;
+            this.name = translateName(translate);
         }
 
         Title.prototype = (function () {
@@ -227,15 +226,16 @@
                 this.scope.heading = this.heading;
                 this.scope.content = this.content;
                 $fkEl.html($compile(html)(this.scope));
+                console.log('name: ', name);
                 if (this.hasReachedEndFn()) {
-                    $('.nextBtn').text("Finish");
+                    $('.nextBtn').text(this.name.finish);
                 } else {
-                    $('.nextBtn').html("Next&nbsp;<i class='glyphicon glyphicon-chevron-right'>");
+                    $('.nextBtn').html(this.name.next+'&nbsp;<i class="glyphicon glyphicon-chevron-right">');
                 }
                 $fkEl.slideDown(100, function () {
-                    $('.nextBtn').one("click",function(){ self.goToNextFn(200);});
-                    $('.skipBtn').one("click",self.skipDemoFn);
-                    $('.prevBtn').one("click",function(){ self.goToPrevFn(200);});
+                    $('.nextBtn').one('click',function(){ self.goToNextFn(200);});
+                    $('.skipBtn').one('click',self.skipDemoFn);
+                    $('.prevBtn').one('click',function(){ self.goToPrevFn(200);});
 
                     if(self.shouldDisablePrevious){
                         $('.prevBtn').prop('disabled', true);
@@ -275,7 +275,7 @@
                 this.func = config.fn;
             }
 
-            this.type = "function";
+            this.type = 'function';
 
 
         }
@@ -309,8 +309,8 @@
         function LocationChange(config, currentStep) {
             this.path = config.path;
             this.currentStep = currentStep;
-            this.prevPath = "";
-            this.type = "location_change"
+            this.prevPath = '';
+            this.type = 'location_change'
             ;
 
         }
@@ -350,15 +350,25 @@
 
     drctv.directive('ngJoyRide', ['$http', '$timeout', '$location', '$window', '$templateCache', '$q' , '$compile', '$sce', 'joyrideFn', 'joyrideTitle', 'joyrideElement', 'joyrideLocationChange', function ($http, $timeout, $location, $window, $templateCache, $q, $compile, $sce, joyrideFn, joyrideTitle, joyrideElement, joyrideLocationChange) {
         return {
-            restrict: "A",
+            restrict: 'A',
             scope: {
                 'ngJoyRide': '=',
                 'config': '=',
+                'translate': '=',
                 'onFinish': '&',
                 'onSkip': '&'
 
             },
             link: function (scope, element, attrs) {
+                var name = translateName(scope.translate);
+
+                $templateCache.put('ng-joyride-tplv1.html',
+                    '<div class="popover ng-joyride sharp-borders"> <div class="arrow"></div>   <h3 class="popover-title sharp-borders"></h3> <div class="popover-content container-fluid"></div></div>'
+                );
+                $templateCache.put('ng-joyride-title-tplv1.html',
+                    '<div id="ng-joyride-title-tplv1"><div class="ng-joyride sharp-borders intro-banner" style=""><div class="popover-inner"><h3 class="popover-title sharp-borders">{{heading}}</h3><div class="popover-content container-fluid"><div ng-bind-html="content"></div><hr><div class="row"><div class="col-md-4 skip-class"><a class="skipBtn pull-left" type="button"><i class="glyphicon glyphicon-ban-circle"></i>&nbsp;'+name.skip+'</a></div><div class="col-md-8"><div class="pull-right"><button class="prevBtn btn" type="button"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;'+name.previous+'</button> <button id="nextTitleBtn" class="nextBtn btn btn-primary" type="button">&nbsp;'+name.next+'<i class="glyphicon glyphicon-chevron-right"></i></button></div></div></div></div></div></div></div>'
+                );
+
                 var steps = [];
                 var currentStepCount = 0;
 
@@ -413,9 +423,9 @@
                         s[i].rollback();
                     }
 
-                    while ((steps[currentStepCount].type === "location_change" || steps[currentStepCount].type === "function") && currentStepCount >= 1) {
+                    while ((steps[currentStepCount].type === 'location_change' || steps[currentStepCount].type === 'function') && currentStepCount >= 1) {
                         requires_timeout = true;
-                        if (steps[currentStepCount].type == "location_change") {
+                        if (steps[currentStepCount].type == 'location_change') {
                             scope.$evalAsync(rollbackSteps(steps, currentStepCount));
                         }
                         else {
@@ -489,8 +499,8 @@
                 function generateStep() {
                     var currentStep = steps[currentStepCount];
                     currentStep.generate();
-                    if (currentStep.type === "location_change" ||
-                        currentStep.type === "function") {
+                    if (currentStep.type === 'location_change' ||
+                        currentStep.type === 'function') {
                         waitForAngular(function () {
                             goToNext();
                         });
@@ -513,32 +523,26 @@
                     steps = options.config.map(function (step) {
                         count++;
                         switch (step.type) {
-                            case "location_change":
+                            case 'location_change':
                                 return new joyrideLocationChange(step, count);
 
-                            case "element":
+                            case 'element':
                                 disablePrevious = isFirst;
                                 isFirst = isFirst ? false:false;
 
-                                return new joyrideElement(step, count, options.templateUri, loadTemplate, hasReachedEnd, goToNext, goToPrev, skipDemo, count === (options.config.length-1),step.curtainClass,changeCurtainClass, disablePrevious ,step.attachToBody);
+                                return new joyrideElement(step, count, options.templateUri, loadTemplate, hasReachedEnd, goToNext, goToPrev, skipDemo, count === (options.config.length-1),step.curtainClass,changeCurtainClass, disablePrevious ,step.attachToBody, scope.translate);
 
-                            case "title":
+                            case 'title':
                                 disablePrevious = isFirst;
                                 isFirst = isFirst ? false:false;
-                                return new joyrideTitle(step, count, scope, loadTemplate, hasReachedEnd, goToNext, goToPrev, skipDemo, step.curtainClass,changeCurtainClass,disablePrevious);
+                                return new joyrideTitle(step, count, scope, loadTemplate, hasReachedEnd, goToNext, goToPrev, skipDemo, step.curtainClass,changeCurtainClass,disablePrevious, scope.translate);
 
-                            case "function":
+                            case 'function':
                                 return new joyrideFn(step, count, scope.$parent);
-
                         }
-
                     });
                 }
             }
         };
-
-
     }]);
-
-
 })(angular);
