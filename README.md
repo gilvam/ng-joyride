@@ -28,7 +28,7 @@ angular.module('myModule', [
 There is one directive called `ng-joy-ride` which can be used as an attribute.
 
 ```sh
-<div ng-joy-ride="startJoyRide" config="config" on-finish="onFinish()"  on-skip="onFinish()"></div>
+<div ng-joy-ride="startJoyRide" config="config" translate="translate" on-finish="onFinish()"  on-skip="onFinish()"></div>
 ```  
 -----    
        
@@ -37,7 +37,7 @@ There is one directive called `ng-joy-ride` which can be used as an attribute.
 
 
 ####ng-joy-ride   
-You can invoke the joyride from anywhere by setting (in this case) `startJoyRide` to true.The scope variable that you bind to `ng-joy-ride` is the one that will control the start of the joyride. Once the joyride is complete , the scope variable gets set to false.So on completeion of the joyride `startJoyRide` will be set to false     
+You can invoke the joyride from anywhere by setting (in this case) `startJoyRide` to true.The scope variable that you bind to `ng-joy-ride` is the one that will control the start of the joyride. Once the joyride is complete , the scope variable gets set to false.So on completeion of the joyride `startJoyRide` will be set to false `translate` optional, translate buttons to other languages.     
 
 
 ### Stopping the Joyride
@@ -68,6 +68,17 @@ $scope.config = [
             }
 
         ];
+``` 
+####translate
+This is the attribute to configure the buttons to be translated.
+Example
+```sh
+$scope.translate ={
+        next: 'name',
+        previous: 'name',
+        finish: 'name',
+        skip: 'name'
+    }
 ``` 
 
 Each element of the array should be a proper joyride element.There are 4 types of `joyride-element`.
